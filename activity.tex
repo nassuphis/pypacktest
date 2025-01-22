@@ -1,0 +1,223 @@
+\documentclass{article}
+\usepackage{pythontex}
+\usepackage[top=1in, bottom=1in, left=1cm, right=1cm]{geometry}
+\usepackage{booktabs}  % Enables \toprule, \midrule, \bottomrule
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+\setlength{\parindent}{0pt}  % Removes paragraph indentation globally
+
+\begin{pycode}
+
+import straddle_activity as straddle
+straddle.result_set = "result_nick_20250115_prod_0024"
+x=straddle.result_set.replace("_", "\\_")
+
+def activity(ul,month):
+    res=straddle.activity(ul,month)
+    count = res["activity"].value_counts()
+    lres = res.to_latex(formatters={
+        'Underlying': lambda x: f'\\texttt{{{x}}}',
+        'month': lambda x: f'\\texttt{{{x}}}',
+        'date': lambda x: x.strftime('%Y-%m-%d'),
+        'activity': lambda x: f'\\texttt{{{x}}}',
+        'straddle': lambda x: f'\\texttt{{{x}}}'
+    })
+    print("\\noindent")
+    print(lres)
+    print("\n")
+    print("\\vskip 1mm")
+    print("\n")
+    print(f"entries: {count.get('entry',0)},")
+    print(f"expiries: {count.get('expiry',0)}\n")
+    print("\\vskip 5mm")
+
+def out_activity(month):
+    res=straddle.out_activity(month)
+    count = res["activity"].value_counts()
+    lres = res.to_latex(formatters={
+        'Underlying': lambda x: f'\\texttt{{{x}}}',
+        'month': lambda x: f'\\texttt{{{x}}}',
+        'date': lambda x: x.strftime('%Y-%m-%d'),
+        'activity': lambda x: f'\\texttt{{{x}}}',
+        'straddle': lambda x: f'\\texttt{{{x}}}'
+    },
+    longtable=True,
+    index=False,
+    column_format='p{3cm} p{1.25cm} p{1.75cm} p{1cm} p{5cm}'
+    )
+    print("\\noindent")
+    print(lres)
+    print("\n")
+    print("\\vskip 1mm")
+    print("\n")
+    print(f"entries: {count.get('entry',0)},")
+    print(f"expiries: {count.get('expiry',0)}\n")
+    print("\\vskip 5mm")
+
+def out_hi(df):
+
+    df_hi = df.copy()
+
+    for index, row in df.iterrows():
+        straddle = row["straddle"].split("|")
+        ntr = straddle[1]
+        xpr = straddle[2]
+        ntrym = row["entry_date"].strftime('%Y-%m')
+        xprym = row["expiry_date"].strftime('%Y-%m')
+        ntrymd = row["entry_date"].strftime('%Y-%m-%d')
+        xprymd = row["expiry_date"].strftime('%Y-%m-%d')
+
+        if ntr != ntrym: 
+            df_hi.at[index, "entry_date"] = f"\\cellcolor{{red}}{ntrymd}"
+        else:
+            df_hi.at[index, "entry_date"] = f"\\cellcolor{{white}}{ntrymd}"
+
+        if xpr != xprym: 
+            df_hi.at[index, "expiry_date"] = f"\\cellcolor{{red}}{xprymd}"
+        else:
+            df_hi.at[index, "expiry_date"] = f"\\cellcolor{{white}}{xprymd}"
+
+    return df_hi
+
+def out_backtest(month):
+    res=straddle.out_backtest(month)
+    res=out_hi(res)
+    res.rename(columns=lambda x: x.replace("_", "\\_"),inplace=True)
+    lres = res.to_latex(formatters={
+        res.columns[0]: lambda x: f'\\texttt{{{x}}}',
+        res.columns[1]: lambda x: x,
+        res.columns[2]: lambda x: x,
+        res.columns[3]: lambda x: f'\\texttt{{{x}}}'
+    },
+    longtable=True,
+    index=False,
+    column_format='p{3cm} p{1.75cm} p{1.75cm} p{6cm}'
+    )
+    print("\\noindent")
+    print(lres)
+    print("\n")
+    print("\\vskip 1mm")
+    print("\n")
+    print(f"rows: {res.shape[0]},")
+    print("\n")
+    print("\\vskip 5mm")
+
+\end{pycode}
+
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    {\Huge Straddle Activity Report\par}
+    \vspace{1cm}
+    {\Large \py{f"{x}"} }\par
+    \vspace{2cm}
+    {\large Nick Nassuphis\par}
+    \vspace{1cm}
+    {\large \today\par}
+\end{titlepage}
+
+\newpage
+\tableofcontents  % Generates the table of contents
+\newpage
+
+\section{\texttt{GBPUSD}}
+
+\begin{pycode}
+activity("GBPUSD Curncy","2025-01")
+\end{pycode}
+
+\begin{pycode}
+activity("GBPUSD Curncy","2024-12")
+\end{pycode}
+
+\begin{pycode}
+activity("GBPUSD Curncy","2024-11")
+\end{pycode}
+
+\newpage
+\section{\texttt{EURUSD}}
+
+\begin{pycode}
+activity("EURUSD Curncy","2025-01")
+\end{pycode}
+
+\begin{pycode}
+activity("EURUSD Curncy","2024-12")
+\end{pycode}
+
+\begin{pycode}
+activity("EURUSD Curncy","2024-11")
+\end{pycode}
+
+\newpage
+\section{\texttt{AUDUSD}}
+
+\begin{pycode}
+activity("AUDUSD Curncy","2025-01")
+\end{pycode}
+
+\begin{pycode}
+activity("AUDUSD Curncy","2024-12")
+\end{pycode}
+
+\begin{pycode}
+activity("AUDUSD Curncy","2024-11")
+\end{pycode}
+
+\newpage
+\section{\texttt{SX5E Index}}
+
+\begin{pycode}
+activity("SX5E Index","2025-01")
+\end{pycode}
+
+\begin{pycode}
+activity("SX5E Index","2024-12")
+\end{pycode}
+
+\begin{pycode}
+activity("SX5E Index","2024-11")
+\end{pycode}
+
+\newpage
+\section{\texttt{SPY US Equity}}
+
+\begin{pycode}
+activity("SPY US Equity","2025-01")
+\end{pycode}
+
+\begin{pycode}
+activity("SPY US Equity","2024-12")
+\end{pycode}
+
+\begin{pycode}
+activity("SPY US Equity","2024-11")
+\end{pycode}
+
+\newpage
+\section{All out-of-month activity for 2025-01}
+
+\begin{pycode}
+out_activity("2025-01")
+\end{pycode}
+
+\newpage
+\section{All out-of-month activity for 2024-12}
+
+\begin{pycode}
+out_activity("2024-12")
+\end{pycode}
+
+\newpage
+\section{All out-of-month backtest activity for 2024-12}
+
+\begin{pycode}
+out_backtest("2024-12")
+\end{pycode}
+
+\end{document}
+
