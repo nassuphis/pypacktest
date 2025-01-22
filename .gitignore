@@ -6,6 +6,15 @@
 *.html
 *.pdf
 *.pyc
+*.stdout
+*.toc
+*.gz
+*.pytxcode
+*.aux
+*.log
+*.pkl
+*.pytxmcr
+*.pytxpyg
 .DS_Store
 
 
