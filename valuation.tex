@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage{pythontex}
+\usepackage[top=1in, bottom=1in, left=1cm, right=1cm]{geometry}
+\usepackage{booktabs}  % Enables \toprule, \midrule, \bottomrule
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+\setlength{\parindent}{0pt}  % Removes paragraph indentation globally
+
+\begin{pycode}
+import straddle_latex as straddle
+straddle.set("result_nick_20250115_prod_0024")
+\end{pycode}
+
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    {\Large \py{straddle.get()} \par}
+    \vspace{1cm} 
+    {Report date: \today  \par}
+    \vspace{6cm} 
+    {\Huge Entry Valuation Report\par}
+    \vspace{2cm}
+    {\large Backtest Vol, Strike, Premium\par}
+\end{titlepage}
+
+\newpage
+\tableofcontents  % Generates the table of contents
+
+\newpage
+\section{GBPUSD}
+
+\begin{pycode}
+straddle.asset_entry("GBPUSD Curncy","2024-12")
+\end{pycode}
+
+\newpage
+\section{EURUSD}
+
+\begin{pycode}
+straddle.asset_entry("EURUSD Curncy","2024-12")
+\end{pycode}
+
+\newpage
+\section{AUDUSD}
+
+\begin{pycode}
+straddle.asset_entry("AUDUSD Curncy","2024-12")
+\end{pycode}
+
+\end{document}
+

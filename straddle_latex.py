@@ -1,18 +1,16 @@
-\documentclass{article}
-\usepackage{pythontex}
-\usepackage[top=1in, bottom=1in, left=1cm, right=1cm]{geometry}
-\usepackage{booktabs}  % Enables \toprule, \midrule, \bottomrule
-\usepackage{longtable}
-\usepackage[hidelinks]{hyperref}
-\usepackage[table]{xcolor}
-\usepackage{colortbl}
-\setlength{\parindent}{0pt}  % Removes paragraph indentation globally
-
-\begin{pycode}
-
+import IPython
 import straddle_activity as straddle
-straddle.result_set = "result_nick_20250115_prod_0024"
-x=straddle.result_set.replace("_", "\\_")
+
+result_set = None
+
+def set(rs):
+    global result_set 
+    result_set = rs.replace("_", "\\_")
+    straddle.result_set = rs
+    
+def get():
+    return  result_set
+
 
 def activity(ul,month):
     res=straddle.activity(ul,month)
@@ -59,8 +57,6 @@ def out_activity(month):
 def out_hi(df):
 
     df_hi = df.copy()
-    df_hi["entry_date"] = ""
-    df_hi["expiry_date"] = ""
 
     for index, row in df.iterrows():
         straddle = row["straddle"].split("|")
@@ -74,14 +70,12 @@ def out_hi(df):
         if ntr != ntrym: 
             df_hi.at[index, "entry_date"] = f"\\cellcolor{{red}}{ntrymd}"
         else:
-            df_hi.at[index, "entry_date"] = ntrymd
+            df_hi.at[index, "entry_date"] = f"\\cellcolor{{white}}{ntrymd}"
 
         if xpr != xprym: 
             df_hi.at[index, "expiry_date"] = f"\\cellcolor{{red}}{xprymd}"
         else:
-            df_hi.at[index, "expiry_date"] = xprymd
-
-        
+            df_hi.at[index, "expiry_date"] = f"\\cellcolor{{white}}{xprymd}"
 
     return df_hi
 
@@ -108,120 +102,31 @@ def out_backtest(month):
     print("\n")
     print("\\vskip 5mm")
 
-\end{pycode}
+def asset_entry(asset,month):
+    res=straddle.asset_entry(asset,month)
+    res.rename(columns=lambda x: x.replace("_", "\\_"),inplace=True)
+    lres = res.to_latex(formatters={
+        res.columns[0]: lambda x: f'\\texttt{{{x}}}', # asset
+        res.columns[1]: lambda x: f'\\texttt{{{x}}}', # month
+        res.columns[2]: lambda x: f'\\texttt{{{x}}}', # straddle
+        res.columns[3]: lambda x: x.strftime('%Y-%m-%d'), # entry
+        res.columns[4]: lambda x: f'\\texttt{{{round(x,2)}}}', # vol
+        res.columns[5]: lambda x: f'\\texttt{{{round(x,2)}}}', # strike
+        res.columns[6]: lambda x: f'\\texttt{{{round(x,4)}}}', # mv
+    },
+    index=False,
+    column_format='p{3cm} p{1.5cm} p{6cm} p{1.75cm} p{1.25cm} p{1.25cm} p{1.25cm} '
+    )
+    print("\\noindent")
+    print(lres)
+    print("\n")
+    print("\\vskip 1mm")
+    print("\n")
+    print(f"rows: {res.shape[0]}")
+    print("\n")
+    print("\\vskip 5mm")
 
 
-\begin{document}
 
-\begin{titlepage}
-    \centering
-    {\Huge Straddle Activity Report\par}
-    \vspace{1cm}
-    {\Large \py{f"{x}"} }\par
-    \vspace{2cm}
-    {\large Nick Nassuphis\par}
-    \vspace{1cm}
-    {\large \today\par}
-\end{titlepage}
 
-\newpage
-\tableofcontents  % Generates the table of contents
-\newpage
-
-\section{\texttt{GBPUSD}}
-
-\begin{pycode}
-activity("GBPUSD Curncy","2025-01")
-\end{pycode}
-
-\begin{pycode}
-activity("GBPUSD Curncy","2024-12")
-\end{pycode}
-
-\begin{pycode}
-activity("GBPUSD Curncy","2024-11")
-\end{pycode}
-
-\newpage
-\section{\texttt{EURUSD}}
-
-\begin{pycode}
-activity("EURUSD Curncy","2025-01")
-\end{pycode}
-
-\begin{pycode}
-activity("EURUSD Curncy","2024-12")
-\end{pycode}
-
-\begin{pycode}
-activity("EURUSD Curncy","2024-11")
-\end{pycode}
-
-\newpage
-\section{\texttt{AUDUSD}}
-
-\begin{pycode}
-activity("AUDUSD Curncy","2025-01")
-\end{pycode}
-
-\begin{pycode}
-activity("AUDUSD Curncy","2024-12")
-\end{pycode}
-
-\begin{pycode}
-activity("AUDUSD Curncy","2024-11")
-\end{pycode}
-
-\newpage
-\section{\texttt{SX5E Index}}
-
-\begin{pycode}
-activity("SX5E Index","2025-01")
-\end{pycode}
-
-\begin{pycode}
-activity("SX5E Index","2024-12")
-\end{pycode}
-
-\begin{pycode}
-activity("SX5E Index","2024-11")
-\end{pycode}
-
-\newpage
-\section{\texttt{SPY US Equity}}
-
-\begin{pycode}
-activity("SPY US Equity","2025-01")
-\end{pycode}
-
-\begin{pycode}
-activity("SPY US Equity","2024-12")
-\end{pycode}
-
-\begin{pycode}
-activity("SPY US Equity","2024-11")
-\end{pycode}
-
-\newpage
-\section{All out-of-month activity for 2025-01}
-
-\begin{pycode}
-out_activity("2025-01")
-\end{pycode}
-
-\newpage
-\section{All out-of-month activity for 2024-12}
-
-\begin{pycode}
-out_activity("2024-12")
-\end{pycode}
-
-\newpage
-\section{All out-of-month backtest activity for 2024-12}
-
-\begin{pycode}
-out_backtest("2024-12")
-\end{pycode}
-
-\end{document}
-
+    

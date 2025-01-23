@@ -1,7 +1,6 @@
-import IPython
 import pandas as pd
 import duckdb as ddb
-ltx = False
+
 result_set = "result_nick_20250121_stagger_7299"
 
 def activity(underlying,month):
@@ -36,7 +35,7 @@ def activity(underlying,month):
         return df1
     
 
-def out_activity(month):
+def out_of_month_activity(month):
     with ddb.connect() as con:
         df0 = pd.read_parquet(f"{result_set}/straddle_entry_expiry.parquet")
         con.register("df0", df0)
@@ -71,7 +70,7 @@ def out_activity(month):
         """).df()
         return df1
 
-def out_backtest(month):
+def out_of_month_backtest(month):
     with ddb.connect() as con:
         bktst = pd.read_parquet(f"{result_set}/backtest.parquet")
         con.register("bktst", bktst)
@@ -105,8 +104,52 @@ def out_backtest(month):
         """).df()
         return df2
 
-def show(res):
-    IPython.display.display(res)
+def asset_entry(asset,month):
+    with ddb.connect() as con:
+        fn = f"{result_set}/backtest.parquet"
+        con.execute(f"CREATE TABLE backtest AS SELECT * FROM read_parquet('{fn}')")
+        df1 = con.execute(f"""
+            SELECT 
+                Underlying as asset, 
+                str_split(straddle,'|')[2] AS month,  
+                straddle,
+                entry_date as entry,    
+                vol,
+                strike,
+                mv
+            FROM backtest
+            WHERE
+                date = entry_date
+                AND 
+                str_split(straddle,'|')[2]='{month}'
+                AND
+                Underlying = '{asset}'
+            ORDER BY entry
+        """).df()
+    return df1
+
+def entries(month):
+    with ddb.connect() as con:
+        fn = f"{result_set}/backtest.parquet"
+        con.execute(f"CREATE TABLE backtest AS SELECT * FROM read_parquet('{fn}')")
+        df1 = con.execute(f"""
+            SELECT 
+                Underlying, 
+                str_split(straddle,'|')[2] AS month,  
+                straddle,
+                expiry_date as date,    
+                vol,
+                strike,
+                mv
+            FROM backtest
+            WHERE
+                date = entry_date
+                AND 
+                str_split(straddle,'|')[2]='{month}'
+        """).df()
+    return df1
+    
+
 
 
 

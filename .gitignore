@@ -15,6 +15,7 @@
 *.pkl
 *.pytxmcr
 *.pytxpyg
+*.out
 .DS_Store
 
 

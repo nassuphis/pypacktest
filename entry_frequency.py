@@ -8,4 +8,3 @@ stre.result_set = rs1
 display(stre.activity("SX5E Index","2024-12").to_latex)
 # %%
 display(stre.activity("GBPUSD Curncy","2024-12").to_latex)
-# %%
